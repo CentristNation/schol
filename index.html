@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>NY School Data Filter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- Leaflet Draw CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    #map { height: 60vh; }
+    #filters, #summary { padding: 10px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 4px; text-align: right; }
+    th { background: #eee; }
+  </style>
+</head>
+<body>
+
+<h2>NY School Data Interactive Filter</h2>
+<div id="map"></div>
+<div id="filters">
+  <h3>Numeric Filters</h3>
+  <div id="numericFilters"></div>
+  <button onclick="applyFilters()">Apply Filters</button>
+  <button onclick="resetSelection()">Reset Drawing Selection</button>
+</div>
+<div id="summary">
+  <h3>Summary Table</h3>
+  <div id="summaryTable"></div>
+</div>
+
+<!-- Scripts -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
+<script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+<script>
+let map = L.map('map').setView([40.75, -73.98], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19
+}).addTo(map);
+
+let geojsonLayer;
+let allData;
+let drawnPolygons = [];
+
+fetch('schools.geojson')
+  .then(res => res.json())
+  .then(data => {
+    allData = data;
+    geojsonLayer = L.geoJSON(data, {
+      style: { color: '#3388ff', weight: 2, fillOpacity: 0.1 }
+    }).addTo(map);
+    createNumericFilters(data);
+    updateSummary(data.features);
+  });
+
+// --- Drawing Control ---
+let drawnItems = new L.FeatureGroup().addTo(map);
+let drawControl = new L.Control.Draw({
+  edit: { featureGroup: drawnItems },
+  draw: {
+    marker: false,
+    circle: false,
+    polyline: false,
+    rectangle: true,
+    polygon: true,
+    circlemarker: false
+  }
+});
+map.addControl(drawControl);
+
+map.on(L.Draw.Event.CREATED, function (event) {
+  let layer = event.layer;
+  drawnItems.addLayer(layer);
+  drawnPolygons.push(layer.toGeoJSON());
+  applyFilters();
+});
+
+function resetSelection() {
+  drawnItems.clearLayers();
+  drawnPolygons = [];
+  applyFilters();
+}
+
+// --- Filters ---
+function createNumericFilters(data) {
+  let numericFields = Object.keys(data.features[0].properties)
+    .filter(k => typeof data.features[0].properties[k] === 'number');
+
+  let container = document.getElementById('numericFilters');
+  container.innerHTML = '';
+  numericFields.forEach(field => {
+    container.innerHTML += `
+      <label>${field} Min: <input type="number" id="${field}_min" step="any"></label>
+      <label> Max: <input type="number" id="${field}_max" step="any"></label><br/>
+    `;
+  });
+}
+
+function applyFilters() {
+  let filtered = allData.features;
+
+  // Apply drawn polygon filter if any
+  if (drawnPolygons.length > 0) {
+    filtered = filtered.filter(f => {
+      return drawnPolygons.some(poly => turf.booleanIntersects(poly, f));
+    });
+  }
+
+  // Apply numeric filters
+  Object.keys(allData.features[0].properties)
+    .filter(k => typeof allData.features[0].properties[k] === 'number')
+    .forEach(field => {
+      let min = parseFloat(document.getElementById(field + '_min').value);
+      let max = parseFloat(document.getElementById(field + '_max').value);
+      if (!isNaN(min)) {
+        filtered = filtered.filter(f => f.properties[field] >= min);
+      }
+      if (!isNaN(max)) {
+        filtered = filtered.filter(f => f.properties[field] <= max);
+      }
+    });
+
+  // Update map
+  geojsonLayer.clearLayers();
+  geojsonLayer.addData(filtered);
+
+  // Update summary
+  updateSummary(filtered);
+}
+
+function updateSummary(features) {
+  if (!features.length) {
+    document.getElementById('summaryTable').innerHTML = '<p>No data matches filters.</p>';
+    return;
+  }
+
+  // Aggregate by Zip
+  let grouped = {};
+  features.forEach(f => {
+    let zip = f.properties.Zip;
+    if (!grouped[zip]) grouped[zip] = { Zip: zip };
+    Object.keys(f.properties).forEach(k => {
+      if (typeof f.properties[k] === 'number') {
+        grouped[zip][k] = (grouped[zip][k] || 0) + f.properties[k];
+      }
+    });
+  });
+
+  // Build table
+  let cols = ['Zip', ...Object.keys(features[0].properties).filter(k => typeof features[0].properties[k] === 'number')];
+  let html = '<table><tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
+  Object.values(grouped).forEach(row => {
+    html += '<tr>' + cols.map(c => `<td>${row[c] !== undefined ? row[c] : ''}</td>`).join('') + '</tr>';
+  });
+  html += '</table>';
+  document.getElementById('summaryTable').innerHTML = html;
+}
+</script>
+</body>
+</html>
