@@ -220,7 +220,7 @@ function resetSelection() {
   map.addLayer(drawnItems);
 
   // Load GeoJSON file from same folder
-  fetch("sample-education-data.geojson")
+  fetch("schools.geojson")
     .then((res) => res.json())
     .then((data) => {
       allFeatures = data.features;
@@ -600,4 +600,5 @@ function resetSelection() {
 </script>
 </body>
 </html>
+
 
