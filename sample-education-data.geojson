@@ -1,0 +1,293 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "Zip": "10001",
+        "School_Level": "Mixed",
+        "Total_Student": 2350,
+        "Female": 1180,
+        "Male": 1170,
+        "Pre_K": 120,
+        "KG": 145,
+        "Grade_1": 160,
+        "Grade_2": 155,
+        "Grade_3": 165,
+        "Grade_4": 170,
+        "Grade_5": 175,
+        "Grade_6": 180,
+        "Grade_7": 185,
+        "Grade_8": 190,
+        "Grade_9": 200,
+        "Grade_10": 195,
+        "Grade_11": 180,
+        "Grade_12": 165,
+        "Asian": 450,
+        "Black": 680,
+        "Hispanic": 890,
+        "White": 330,
+        "Student_Ratio": 18.5,
+        "School_Count": 8,
+        "state": "NY",
+        "pop": 42500,
+        "med_income": 67500,
+        "poverty_pct": 18.2,
+        "unemployment_pct": 6.8,
+        "bachAtleast_pct": 42.3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.9958, 40.7489],
+            [-73.9920, 40.7489],
+            [-73.9920, 40.7520],
+            [-73.9958, 40.7520],
+            [-73.9958, 40.7489]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Zip": "10002",
+        "School_Level": "Mixed",
+        "Total_Student": 1890,
+        "Female": 920,
+        "Male": 970,
+        "Pre_K": 95,
+        "KG": 110,
+        "Grade_1": 125,
+        "Grade_2": 130,
+        "Grade_3": 140,
+        "Grade_4": 145,
+        "Grade_5": 150,
+        "Grade_6": 155,
+        "Grade_7": 160,
+        "Grade_8": 165,
+        "Grade_9": 170,
+        "Grade_10": 165,
+        "Grade_11": 155,
+        "Grade_12": 145,
+        "Asian": 280,
+        "Black": 420,
+        "Hispanic": 950,
+        "White": 240,
+        "Student_Ratio": 19.2,
+        "School_Count": 6,
+        "state": "NY",
+        "pop": 38200,
+        "med_income": 58900,
+        "poverty_pct": 24.7,
+        "unemployment_pct": 8.1,
+        "bachAtleast_pct": 35.8
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.9920, 40.7160],
+            [-73.9850, 40.7160],
+            [-73.9850, 40.7220],
+            [-73.9920, 40.7220],
+            [-73.9920, 40.7160]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Zip": "10003",
+        "School_Level": "Mixed",
+        "Total_Student": 1650,
+        "Female": 825,
+        "Male": 825,
+        "Pre_K": 80,
+        "KG": 95,
+        "Grade_1": 110,
+        "Grade_2": 115,
+        "Grade_3": 120,
+        "Grade_4": 125,
+        "Grade_5": 130,
+        "Grade_6": 135,
+        "Grade_7": 140,
+        "Grade_8": 145,
+        "Grade_9": 150,
+        "Grade_10": 145,
+        "Grade_11": 135,
+        "Grade_12": 120,
+        "Asian": 198,
+        "Black": 330,
+        "Hispanic": 495,
+        "White": 627,
+        "Student_Ratio": 16.8,
+        "School_Count": 5,
+        "state": "NY",
+        "pop": 35600,
+        "med_income": 89200,
+        "poverty_pct": 12.4,
+        "unemployment_pct": 4.2,
+        "bachAtleast_pct": 68.9
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.9920, 40.7220],
+            [-73.9850, 40.7220],
+            [-73.9850, 40.7280],
+            [-73.9920, 40.7280],
+            [-73.9920, 40.7220]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Zip": "10014",
+        "School_Level": "Mixed",
+        "Total_Student": 1420,
+        "Female": 695,
+        "Male": 725,
+        "Pre_K": 70,
+        "KG": 85,
+        "Grade_1": 95,
+        "Grade_2": 100,
+        "Grade_3": 105,
+        "Grade_4": 110,
+        "Grade_5": 115,
+        "Grade_6": 120,
+        "Grade_7": 125,
+        "Grade_8": 130,
+        "Grade_9": 135,
+        "Grade_10": 130,
+        "Grade_11": 120,
+        "Grade_12": 100,
+        "Asian": 142,
+        "Black": 213,
+        "Hispanic": 284,
+        "White": 781,
+        "Student_Ratio": 14.2,
+        "School_Count": 4,
+        "state": "NY",
+        "pop": 28900,
+        "med_income": 125600,
+        "poverty_pct": 8.1,
+        "unemployment_pct": 3.5,
+        "bachAtleast_pct": 78.4
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-74.0080, 40.7340],
+            [-74.0020, 40.7340],
+            [-74.0020, 40.7390],
+            [-74.0080, 40.7390],
+            [-74.0080, 40.7340]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Zip": "10025",
+        "School_Level": "Mixed",
+        "Total_Student": 2850,
+        "Female": 1410,
+        "Male": 1440,
+        "Pre_K": 145,
+        "KG": 170,
+        "Grade_1": 185,
+        "Grade_2": 190,
+        "Grade_3": 195,
+        "Grade_4": 200,
+        "Grade_5": 205,
+        "Grade_6": 210,
+        "Grade_7": 215,
+        "Grade_8": 220,
+        "Grade_9": 225,
+        "Grade_10": 220,
+        "Grade_11": 205,
+        "Grade_12": 190,
+        "Asian": 485,
+        "Black": 570,
+        "Hispanic": 855,
+        "White": 940,
+        "Student_Ratio": 17.3,
+        "School_Count": 9,
+        "state": "NY",
+        "pop": 52400,
+        "med_income": 78900,
+        "poverty_pct": 15.6,
+        "unemployment_pct": 5.9,
+        "bachAtleast_pct": 58.7
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.9750, 40.7950],
+            [-73.9650, 40.7950],
+            [-73.9650, 40.8020],
+            [-73.9750, 40.8020],
+            [-73.9750, 40.7950]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Zip": "10128",
+        "School_Level": "Mixed",
+        "Total_Student": 1180,
+        "Female": 590,
+        "Male": 590,
+        "Pre_K": 60,
+        "KG": 70,
+        "Grade_1": 80,
+        "Grade_2": 85,
+        "Grade_3": 90,
+        "Grade_4": 95,
+        "Grade_5": 100,
+        "Grade_6": 105,
+        "Grade_7": 110,
+        "Grade_8": 115,
+        "Grade_9": 120,
+        "Grade_10": 115,
+        "Grade_11": 105,
+        "Grade_12": 90,
+        "Asian": 165,
+        "Black": 95,
+        "Hispanic": 130,
+        "White": 790,
+        "Student_Ratio": 12.8,
+        "School_Count": 3,
+        "state": "NY",
+        "pop": 24800,
+        "med_income": 145200,
+        "poverty_pct": 5.2,
+        "unemployment_pct": 2.8,
+        "bachAtleast_pct": 85.3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-73.9520, 40.7820],
+            [-73.9420, 40.7820],
+            [-73.9420, 40.7880],
+            [-73.9520, 40.7880],
+            [-73.9520, 40.7820]
+          ]
+        ]
+      }
+    }
+  ]
+}
