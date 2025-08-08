@@ -1,25 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>NY School Data Filter</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <!-- Leaflet Draw CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
-  <style>
-    body { margin: 0; font-family: Arial, sans-serif; }
-    #map { height: 60vh; }
-    #filters, #summary { padding: 10px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
-    th, td { border: 1px solid #ccc; padding: 4px; text-align: right; }
-    th { background: #eee; }
-  </style>
+<meta charset="utf-8" />
+<title>ZIP Filter Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
+<style>
+  body { margin:0; font-family: Arial; }
+  #map { height: 60vh; }
+  #filters, #summary { padding: 10px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+  th, td { border: 1px solid #ccc; padding: 4px; text-align: right; }
+  th { background: #eee; }
+</style>
 </head>
 <body>
 
-<h2>NY School Data Interactive Filter</h2>
+<h2>ZIP Selection & Aggregation</h2>
 <div id="map"></div>
 <div id="filters">
   <h3>Numeric Filters</h3>
@@ -32,15 +30,12 @@
   <div id="summaryTable"></div>
 </div>
 
-<!-- Scripts -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
 <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
 <script>
 let map = L.map('map').setView([40.75, -73.98], 12);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19
-}).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
 let geojsonLayer;
 let allData;
@@ -54,10 +49,10 @@ fetch('schools.geojson')
       style: { color: '#3388ff', weight: 2, fillOpacity: 0.1 }
     }).addTo(map);
     createNumericFilters(data);
-    updateSummary(data.features);
+    updateSummary(data.features); // show table immediately
   });
 
-// --- Drawing Control ---
+// --- Drawing setup ---
 let drawnItems = new L.FeatureGroup().addTo(map);
 let drawControl = new L.Control.Draw({
   edit: { featureGroup: drawnItems },
@@ -72,93 +67,537 @@ let drawControl = new L.Control.Draw({
 });
 map.addControl(drawControl);
 
-map.on(L.Draw.Event.CREATED, function (event) {
-  let layer = event.layer;
+map.on(L.Draw.Event.CREATED, function (e) {
+  let layer = e.layer;
   drawnItems.addLayer(layer);
   drawnPolygons.push(layer.toGeoJSON());
   applyFilters();
 });
 
 function resetSelection() {
-  drawnItems.clearLayers();
-  drawnPolygons = [];
-  applyFilters();
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zip Code Education Data Dashboard</title>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"
+/>
+<style>
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+  #map {
+    flex: 2;
+    height: 100vh;
+  }
+  #sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    background: #f9f9f9;
+    border-left: 1px solid #ddd;
+    overflow-y: auto;
+  }
+  h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #2c3e50;
+  }
+  .filter-group {
+    margin-bottom: 12px;
+  }
+  label {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  input[type="number"] {
+    width: 80px;
+    margin-left: 6px;
+    margin-right: 10px;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 0.85rem;
+  }
+  table thead tr {
+    background-color: #34495e;
+    color: #fff;
+  }
+  table th,
+  table td {
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    text-align: right;
+  }
+  table th:first-child,
+  table td:first-child {
+    text-align: left;
+  }
+  #charts {
+    margin-top: 20px;
+  }
+  canvas {
+    width: 100% !important;
+    max-height: 250px;
+  }
+  @media (max-width: 900px) {
+    body {
+      flex-direction: column;
+    }
+    #map {
+      height: 50vh;
+      flex: none;
+    }
+    #sidebar {
+      height: 50vh;
+      flex: none;
+      border-left: none;
+      border-top: 1px solid #ddd;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="sidebar">
+  <h2>Filters</h2>
+  <div id="filters"></div>
+  <button id="clearSelection">Clear Selection</button>
+  <h2>Summary Table</h2>
+  <div style="overflow-x:auto;">
+    <table id="summaryTable">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <h2>Bar Charts</h2>
+  <div id="charts">
+    <canvas id="countChart"></canvas>
+    <canvas id="pctChart"></canvas>
+  </div>
+</div>
 
-// --- Filters ---
-function createNumericFilters(data) {
-  let numericFields = Object.keys(data.features[0].properties)
-    .filter(k => typeof data.features[0].properties[k] === 'number');
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  crossorigin=""
+></script>
+<script
+  src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"
+  crossorigin=""
+></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const map = L.map("map").setView([40.75, -73.98], 13);
 
-  let container = document.getElementById('numericFilters');
-  container.innerHTML = '';
-  numericFields.forEach(field => {
-    container.innerHTML += `
-      <label>${field} Min: <input type="number" id="${field}_min" step="any"></label>
-      <label> Max: <input type="number" id="${field}_max" step="any"></label><br/>
-    `;
-  });
-}
+  L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+      maxZoom: 19,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }
+  ).addTo(map);
 
-function applyFilters() {
-  let filtered = allData.features;
+  let geojsonLayer;
+  let drawnItems = new L.FeatureGroup();
+  map.addLayer(drawnItems);
 
-  // Apply drawn polygon filter if any
-  if (drawnPolygons.length > 0) {
-    filtered = filtered.filter(f => {
-      return drawnPolygons.some(poly => turf.booleanIntersects(poly, f));
+  // Load GeoJSON file from same folder
+  fetch("sample-education-data.geojson")
+    .then((res) => res.json())
+    .then((data) => {
+      allFeatures = data.features;
+
+      // Get all numeric properties keys (excluding geometry & strings)
+      const sampleProps = allFeatures[0].properties;
+      allNumericFields = Object.keys(sampleProps).filter(
+        (k) => typeof sampleProps[k] === "number"
+      );
+
+      createFilters(allNumericFields);
+
+      // Add GeoJSON layer with default style and popup
+      geojsonLayer = L.geoJSON(allFeatures, {
+        style: { color: "#0077b6", weight: 2, fillOpacity: 0.1 },
+        onEachFeature: (feature, layer) => {
+          const p = feature.properties;
+          let popupContent = `<b>Zip: ${p.Zip}</b><br/>
+            Total Students: ${p.Total_Student}<br/>
+            Median Income: $${p.med_income.toLocaleString()}`;
+          layer.bindPopup(popupContent);
+        },
+      }).addTo(map);
+
+      applyFiltersAndUpdate();
+
+      // Setup Leaflet Draw Control
+      const drawControl = new L.Control.Draw({
+        edit: { featureGroup: drawnItems },
+        draw: {
+          polygon: true,
+          rectangle: true,
+          polyline: false,
+          circle: false,
+          marker: false,
+          circlemarker: false,
+        },
+      });
+      map.addControl(drawControl);
+
+      map.on(L.Draw.Event.CREATED, function (e) {
+        drawnItems.clearLayers();
+        drawnItems.addLayer(e.layer);
+        applyFiltersAndUpdate();
+      });
+
+      map.on(L.Draw.Event.EDITED, function (e) {
+        applyFiltersAndUpdate();
+      });
+
+      map.on(L.Draw.Event.DELETED, function (e) {
+        applyFiltersAndUpdate();
+      });
+    })
+    .catch(() => {
+      alert(
+        "Error loading data - make sure sample-education-data.geojson is in the same folder"
+      );
+    });
+
+  const filtersDiv = document.getElementById("filters");
+  const summaryTable = document.getElementById("summaryTable");
+  const clearSelectionBtn = document.getElementById("clearSelection");
+
+  let allFeatures = [];
+  let allNumericFields = [];
+
+  // State to hold current filter values {field: {min, max}}
+  let filterValues = {};
+
+  // Create numeric filters (min/max inputs for each numeric field)
+  function createFilters(fields) {
+    filtersDiv.innerHTML = "";
+    fields.forEach((field) => {
+      filterValues[field] = { min: null, max: null };
+
+      const div = document.createElement("div");
+      div.className = "filter-group";
+
+      const label = document.createElement("label");
+      label.textContent = field;
+      label.htmlFor = `min-${field}`;
+
+      const minInput = document.createElement("input");
+      minInput.type = "number";
+      minInput.id = `min-${field}`;
+      minInput.placeholder = "min";
+      minInput.addEventListener("input", () => {
+        const val = minInput.valueAsNumber;
+        filterValues[field].min = isNaN(val) ? null : val;
+        applyFiltersAndUpdate();
+      });
+
+      const maxInput = document.createElement("input");
+      maxInput.type = "number";
+      maxInput.id = `max-${field}`;
+      maxInput.placeholder = "max";
+      maxInput.addEventListener("input", () => {
+        const val = maxInput.valueAsNumber;
+        filterValues[field].max = isNaN(val) ? null : val;
+        applyFiltersAndUpdate();
+      });
+
+      div.appendChild(label);
+      div.appendChild(minInput);
+      div.appendChild(maxInput);
+      filtersDiv.appendChild(div);
     });
   }
 
-  // Apply numeric filters
-  Object.keys(allData.features[0].properties)
-    .filter(k => typeof allData.features[0].properties[k] === 'number')
-    .forEach(field => {
-      let min = parseFloat(document.getElementById(field + '_min').value);
-      let max = parseFloat(document.getElementById(field + '_max').value);
-      if (!isNaN(min)) {
-        filtered = filtered.filter(f => f.properties[field] >= min);
-      }
-      if (!isNaN(max)) {
-        filtered = filtered.filter(f => f.properties[field] <= max);
-      }
+  // Clear drawn selection and filters
+  clearSelectionBtn.addEventListener("click", () => {
+    drawnItems.clearLayers();
+    // Clear filters
+    Object.keys(filterValues).forEach((field) => {
+      filterValues[field].min = null;
+      filterValues[field].max = null;
+      document.getElementById(`min-${field}`).value = "";
+      document.getElementById(`max-${field}`).value = "";
     });
+    applyFiltersAndUpdate();
+  });
 
-  // Update map
-  geojsonLayer.clearLayers();
-  geojsonLayer.addData(filtered);
-
-  // Update summary
-  updateSummary(filtered);
-}
-
-function updateSummary(features) {
-  if (!features.length) {
-    document.getElementById('summaryTable').innerHTML = '<p>No data matches filters.</p>';
-    return;
+  // Check if a feature passes numeric filters
+  function passesFilters(feature) {
+    for (const field of allNumericFields) {
+      const val = feature.properties[field];
+      const { min, max } = filterValues[field];
+      if (min !== null && val < min) return false;
+      if (max !== null && val > max) return false;
+    }
+    return true;
   }
 
-  // Aggregate by Zip
-  let grouped = {};
-  features.forEach(f => {
-    let zip = f.properties.Zip;
-    if (!grouped[zip]) grouped[zip] = { Zip: zip };
-    Object.keys(f.properties).forEach(k => {
-      if (typeof f.properties[k] === 'number') {
-        grouped[zip][k] = (grouped[zip][k] || 0) + f.properties[k];
-      }
-    });
-  });
+  // Check if a feature is inside drawn polygon(s)
+  function isInDrawnArea(feature) {
+    if (drawnItems.getLayers().length === 0) return true; // no selection means all included
 
-  // Build table
-  let cols = ['Zip', ...Object.keys(features[0].properties).filter(k => typeof features[0].properties[k] === 'number')];
-  let html = '<table><tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
-  Object.values(grouped).forEach(row => {
-    html += '<tr>' + cols.map(c => `<td>${row[c] !== undefined ? row[c] : ''}</td>`).join('') + '</tr>';
-  });
-  html += '</table>';
-  document.getElementById('summaryTable').innerHTML = html;
-}
+    const latlngs = feature.geometry.coordinates[0].map(
+      (c) => L.latLng(c[1], c[0])
+    );
+
+    const polygon = drawnItems.getLayers()[0];
+
+    // Use Leaflet point-in-polygon for each vertex - 
+    // here we check if polygon contains at least one vertex of zip polygon.
+    // (You can adjust to check full intersection if you want.)
+    return latlngs.some((latlng) => polygon.getBounds().contains(latlng) &&
+      leafletPip.pointInLayer(latlng, polygon).length > 0);
+  }
+
+  // Because leafletPip not loaded, alternative point-in-polygon
+  function pointInPolygon(point, polygon) {
+    // ray-casting algorithm for point in polygon
+    const x = point.lng, y = point.lat;
+    let inside = false;
+    const polyPoints = polygon.getLatLngs()[0];
+    for (let i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
+      const xi = polyPoints[i].lng, yi = polyPoints[i].lat;
+      const xj = polyPoints[j].lng, yj = polyPoints[j].lat;
+
+      const intersect =
+        yi > y !== yj > y &&
+        x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  }
+
+  function isFeatureInsideDrawn(feature) {
+    if (drawnItems.getLayers().length === 0) return true;
+
+    const polygon = drawnItems.getLayers()[0];
+    // Check if any vertex of feature polygon is inside drawn polygon
+    return feature.geometry.coordinates[0].some((coord) => {
+      const latlng = L.latLng(coord[1], coord[0]);
+      return pointInPolygon(latlng, polygon);
+    });
+  }
+
+  // Apply filters, update map and summary table/chart
+  function applyFiltersAndUpdate() {
+    if (!geojsonLayer) return;
+
+    const filteredFeatures = allFeatures.filter(
+      (f) => passesFilters(f) && isFeatureInsideDrawn(f)
+    );
+
+    geojsonLayer.clearLayers();
+    geojsonLayer.addData(filteredFeatures);
+
+    updateSummaryTableAndCharts(filteredFeatures);
+  }
+
+  // Aggregation logic for summary
+  // sum for count fields (default), average for _pct fields
+  function aggregateFeatures(features) {
+    if (features.length === 0) return [];
+
+    // group by Zip
+    const grouped = {};
+    features.forEach((f) => {
+      const zip = f.properties.Zip;
+      if (!grouped[zip]) grouped[zip] = [];
+      grouped[zip].push(f.properties);
+    });
+
+    const results = [];
+
+    for (const [zip, propsArray] of Object.entries(grouped)) {
+      const agg = { Zip: zip };
+      // For each numeric field:
+      allNumericFields.forEach((field) => {
+        if (field === "Zip") return;
+        if (field.endsWith("_pct")) {
+          // average
+          const vals = propsArray.map((p) => p[field]);
+          agg[field] =
+            vals.reduce((a, b) => a + b, 0) / vals.length;
+        } else {
+          // sum
+          agg[field] = propsArray.reduce((a, b) => a + b[field], 0);
+        }
+      });
+      results.push(agg);
+    }
+    return results;
+  }
+
+  // Update summary table and bar charts
+  function updateSummaryTableAndCharts(features) {
+    const aggregates = aggregateFeatures(features);
+
+    if (aggregates.length === 0) {
+      summaryTable.querySelector("thead").innerHTML = "";
+      summaryTable.querySelector("tbody").innerHTML = "";
+      countChartInstance?.destroy();
+      pctChartInstance?.destroy();
+      return;
+    }
+
+    // Build table headers from keys
+    const keys = Object.keys(aggregates[0]);
+    const thead = keys
+      .map((k) => `<th>${k.replace(/_/g, " ")}</th>`)
+      .join("");
+    summaryTable.querySelector("thead").innerHTML = `<tr>${thead}</tr>`;
+
+    // Build table body rows
+    const tbody = aggregates
+      .map((row) => {
+        return `<tr>${keys
+          .map((k) => {
+            let val = row[k];
+            if (typeof val === "number") {
+              val =
+                k.endsWith("_pct")
+                  ? val.toFixed(2) + "%"
+                  : val.toLocaleString();
+            }
+            return `<td>${val}</td>`;
+          })
+          .join("")}</tr>`;
+      })
+      .join("");
+    summaryTable.querySelector("tbody").innerHTML = tbody;
+
+    // Prepare data for charts
+    // For counts (sum) chart, pick a few representative count fields:
+    const countFields = allNumericFields.filter(
+      (f) => !f.endsWith("_pct") && f !== "Zip"
+    );
+    // For pct (average) chart, pick all pct fields:
+    const pctFields = allNumericFields.filter(
+      (f) => f.endsWith("_pct")
+    );
+
+    // Aggregate sums/averages across all shown zips for bar charts
+    const totalCounts = {};
+    countFields.forEach((f) => {
+      totalCounts[f] = aggregates.reduce((a, row) => a + row[f], 0);
+    });
+    const avgPcts = {};
+    pctFields.forEach((f) => {
+      avgPcts[f] =
+        aggregates.reduce((a, row) => a + row[f], 0) /
+        aggregates.length;
+    });
+
+    // Update Count Chart
+    updateBarChart(
+      countChartInstance,
+      "Totals (Count fields)",
+      countFields,
+      totalCounts,
+      "countChart"
+    );
+
+    // Update Percent Chart
+    updateBarChart(
+      pctChartInstance,
+      "Averages (%)",
+      pctFields,
+      avgPcts,
+      "pctChart",
+      true
+    );
+  }
+
+  let countChartInstance = null;
+  let pctChartInstance = null;
+
+  // Create or update bar chart
+  function updateBarChart(chartInstance, title, labels, dataObj, canvasId, isPercent = false) {
+    const ctx = document.getElementById(canvasId).getContext("2d");
+    const labelsArr = labels;
+    const dataArr = labelsArr.map((l) => dataObj[l] || 0);
+
+    if (chartInstance) {
+      chartInstance.data.labels = labelsArr;
+      chartInstance.data.datasets[0].data = dataArr;
+      chartInstance.options.plugins.title.text = title;
+      chartInstance.update();
+    } else {
+      chartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labelsArr,
+          datasets: [
+            {
+              label: title,
+              data: dataArr,
+              backgroundColor: isPercent ? "rgba(54, 162, 235, 0.7)" : "rgba(255, 99, 132, 0.7)",
+              borderColor: isPercent ? "rgba(54, 162, 235, 1)" : "rgba(255, 99, 132, 1)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: title,
+              font: { size: 16, weight: "bold" },
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  let label = context.dataset.label || "";
+                  if (isPercent) {
+                    return `${context.parsed.y.toFixed(2)} %`;
+                  } else {
+                    return context.parsed.y.toLocaleString();
+                  }
+                },
+              },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function (val) {
+                  return isPercent ? val + "%" : val.toLocaleString();
+                },
+              },
+            },
+          },
+        },
+      });
+      if (canvasId === "countChart") countChartInstance = chartInstance;
+      else pctChartInstance = chartInstance;
+    }
+  }
 </script>
 </body>
 </html>
+
